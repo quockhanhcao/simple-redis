@@ -14,22 +14,26 @@ func main() {
 	}
 	defer listener.Close()
 
-	conn, err := listener.Accept()
-	if err != nil {
-		fmt.Println("Error accepting connection: ", err.Error())
-		os.Exit(1)
-	}
-	handleConnection(conn)
+    for {
+        conn, err := listener.Accept()
+        if err != nil {
+            fmt.Println("Error accepting connection: ", err.Error())
+            os.Exit(1)
+        }
+        go handleConnection(conn)
+    }
 }
 
 func handleConnection(conn net.Conn) {
 	defer conn.Close()
-	buf := make([]byte, 1024)
-	n, err := conn.Read(buf)
-	if err != nil {
-		fmt.Println("Error reading from connection: ", err.Error())
-		return
-	}
-	fmt.Println("Received data: ", string(buf[:n]))
-	conn.Write([]byte("+PONG\r\n"))
+    for {
+        buf := make([]byte, 32)
+        n, err := conn.Read(buf)
+        if err != nil {
+            fmt.Println("Error reading from connection: ", err.Error())
+            return
+        }
+        fmt.Println("Received data: ", string(buf[:n]))
+        conn.Write([]byte("+PONG\r\n"))
+    }
 }
